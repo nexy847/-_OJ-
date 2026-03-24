@@ -1,0 +1,56 @@
+﻿spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:oj}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:12365478910vr}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+
+server:
+  port: 8080
+
+oj:
+  judge:
+    work-dir: ${OJ_WORK_DIR:D:/oj_system_with_codex/data/work}
+    testcase-dir: ${OJ_TESTCASE_DIR:D:/oj_system_with_codex/data/testcases}
+    batch-size: 2
+    poll-interval: 1000
+    max-concurrency: ${OJ_MAX_CONCURRENCY:2}
+    max-retries: ${OJ_MAX_RETRIES:2}
+    retry-delay-seconds: ${OJ_RETRY_DELAY_SECONDS:5}
+    cpus: 1.0
+    memory-mb: 256
+    pids-limit: 64
+    max-output-kb: ${OJ_MAX_OUTPUT_KB:1024}
+    max-code-size-kb: ${OJ_MAX_CODE_SIZE_KB:64}
+    images:
+      C: oj-gcc
+      CPP: oj-gcc
+      JAVA: oj-java
+      PYTHON: oj-python
+  export:
+    hdfs-uri: ${HDFS_URI:hdfs://192.168.174.10:8020}
+    hdfs-dir: ${HDFS_DIR:/oj/analysis}
+    batch-size: 2000
+    cron: "0 0 * * * *"
+    hadoop-user: ${HADOOP_USER:hadoop}
+    hadoop-conf-dir: ${HADOOP_CONF_DIR:}
+  security:
+    jwt-secret: ${JWT_SECRET:change-me-please-change-me}
+    jwt-expiration-minutes: ${JWT_EXP_MINUTES:240}
+    admin-users: ${ADMIN_USERS:u1,admin}
+  limits:
+    submit-per-minute: ${SUBMIT_PER_MINUTE:30}
+    login-per-minute: ${LOGIN_PER_MINUTE:10}
+
+logging:
+  level:
+    org.hibernate.SQL: WARN

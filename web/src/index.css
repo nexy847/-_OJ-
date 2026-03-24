@@ -1,0 +1,52 @@
+:root {
+  color: #1f2937;
+  background: #f5f7fa;
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #f5f7fa;
+}
+
+a {
+  color: inherit;
+}
+
+.page-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.page-section {
+  margin-bottom: 16px;
+}
+
+.chart-box {
+  height: 360px;
+}
+
+.monospace-textarea textarea,
+.monospace-block {
+  font-family: Consolas, 'Courier New', monospace;
+}
+
+.full-height-card .ant-card-body {
+  height: 100%;
+}

@@ -4,10 +4,12 @@ import type { TableProps } from 'antd'
 import { Card, Col, Empty, Row, Space, Statistic, Table, Tag, Typography } from 'antd'
 import {
   getUserDaily,
+  getUserLanguageDaily,
   getUserLanguage,
   getUserOverview,
   getUserProblems,
   getUserRecent,
+  getUserVerdictDaily,
   getUserVerdict,
 } from '../api/analytics'
 import { UserProblemStatResponse, UserRecentSubmissionResponse } from '../types/api'
@@ -28,9 +30,17 @@ export function UserAnalyticsPage() {
     queryKey: ['analytics', 'user', 'language'],
     queryFn: getUserLanguage,
   })
+  const languageDailyQuery = useQuery({
+    queryKey: ['analytics', 'user', 'language-daily', 30],
+    queryFn: () => getUserLanguageDaily(30),
+  })
   const verdictQuery = useQuery({
     queryKey: ['analytics', 'user', 'verdict'],
     queryFn: getUserVerdict,
+  })
+  const verdictDailyQuery = useQuery({
+    queryKey: ['analytics', 'user', 'verdict-daily', 30],
+    queryFn: () => getUserVerdictDaily(30),
   })
   const problemQuery = useQuery({
     queryKey: ['analytics', 'user', 'problems', 50],
@@ -44,9 +54,16 @@ export function UserAnalyticsPage() {
   const overview = overviewQuery.data
   const daily = dailyQuery.data ?? []
   const language = languageQuery.data ?? []
+  const languageDaily = languageDailyQuery.data ?? []
   const verdict = verdictQuery.data ?? []
+  const verdictDaily = verdictDailyQuery.data ?? []
   const problems = problemQuery.data ?? []
   const recent = recentQuery.data ?? []
+
+  const languageSeriesNames = Array.from(new Set(languageDaily.map((item) => item.language)))
+  const languageDates = Array.from(new Set(languageDaily.map((item) => item.date)))
+  const verdictSeriesNames = Array.from(new Set(verdictDaily.map((item) => item.verdict)))
+  const verdictDates = Array.from(new Set(verdictDaily.map((item) => item.date)))
 
   const problemColumns: TableProps<UserProblemStatResponse>['columns'] = [
     { title: 'Problem ID', dataIndex: 'problemId' },
@@ -206,6 +223,61 @@ export function UserAnalyticsPage() {
                       })),
                     },
                   ],
+                }}
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} xl={12}>
+          <Card title="Daily Language Activity" loading={languageDailyQuery.isLoading}>
+            {languageDaily.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No daily language data" />
+            ) : (
+              <ReactECharts
+                style={chartStyle}
+                option={{
+                  tooltip: { trigger: 'axis' },
+                  legend: { bottom: 0 },
+                  xAxis: { type: 'category', data: languageDates },
+                  yAxis: { type: 'value' },
+                  series: languageSeriesNames.map((languageName) => ({
+                    name: languageName,
+                    type: 'line',
+                    smooth: true,
+                    data: languageDates.map((date) => {
+                      const row = languageDaily.find((item) => item.date === date && item.language === languageName)
+                      return row?.total ?? 0
+                    }),
+                  })),
+                }}
+              />
+            )}
+          </Card>
+        </Col>
+        <Col xs={24} xl={12}>
+          <Card title="Daily Verdict Activity" loading={verdictDailyQuery.isLoading}>
+            {verdictDaily.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No daily verdict data" />
+            ) : (
+              <ReactECharts
+                style={chartStyle}
+                option={{
+                  tooltip: { trigger: 'axis' },
+                  legend: { bottom: 0 },
+                  xAxis: { type: 'category', data: verdictDates },
+                  yAxis: { type: 'value' },
+                  series: verdictSeriesNames.map((verdictName) => ({
+                    name: verdictName,
+                    type: 'bar',
+                    stack: 'verdict',
+                    data: verdictDates.map((date) => {
+                      const row = verdictDaily.find((item) => item.date === date && item.verdict === verdictName)
+                      return row?.total ?? 0
+                    }),
+                  })),
                 }}
               />
             )}

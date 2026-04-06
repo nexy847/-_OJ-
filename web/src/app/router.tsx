@@ -3,6 +3,8 @@ import { AdminRoute, GuestRoute, ProtectedRoute } from '../components/RouteGuard
 import { AppLayout } from '../layouts/AppLayout'
 import { AdminAnalyticsPage } from '../pages/admin/AdminAnalyticsPage'
 import { AdminExportPage } from '../pages/admin/AdminExportPage'
+import { AdminPerdictPage } from '../pages/admin/AdminPerdictPage'
+import { AdminProblemDifficultyPage } from '../pages/admin/AdminProblemDifficultyPage'
 import { AdminProblemCreatePage } from '../pages/admin/AdminProblemCreatePage'
 import { AdminProblemDetailPage } from '../pages/admin/AdminProblemDetailPage'
 import { AdminProblemListPage } from '../pages/admin/AdminProblemListPage'
@@ -65,6 +67,14 @@ export function AppRouter() {
           }
         />
         <Route
+          path="admin/problems/difficulty"
+          element={
+            <AdminRoute>
+              <AdminProblemDifficultyPage />
+            </AdminRoute>
+          }
+        />
+        <Route
           path="admin/problems/:id"
           element={
             <AdminRoute>
@@ -77,6 +87,14 @@ export function AppRouter() {
           element={
             <AdminRoute>
               <AdminAnalyticsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/perdict"
+          element={
+            <AdminRoute>
+              <AdminPerdictPage />
             </AdminRoute>
           }
         />

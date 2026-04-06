@@ -6,6 +6,8 @@ import {
   LineChartOutlined,
   LogoutOutlined,
   OrderedListOutlined,
+  RiseOutlined,
+  RadarChartOutlined,
   SettingOutlined,
 } from '@ant-design/icons'
 import { Button, Layout, Menu, Space, Typography } from 'antd'
@@ -27,7 +29,9 @@ export function AppLayout() {
       ? [
           { key: '/admin/problems', icon: <FileTextOutlined />, label: 'Problem Admin' },
           { key: '/admin/problems/create', icon: <FileAddOutlined />, label: 'Create Problem' },
+          { key: '/admin/problems/difficulty', icon: <RiseOutlined />, label: 'Problem Difficulty' },
           { key: '/admin/analytics', icon: <BarChartOutlined />, label: 'System Analytics' },
+          { key: '/admin/perdict', icon: <RadarChartOutlined />, label: 'Perdict' },
           { key: '/admin/export', icon: <CloudUploadOutlined />, label: 'Export HDFS' },
         ]
       : []),

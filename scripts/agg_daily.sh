@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-DT=${1:-$(date -d "yesterday" +%F)}
+DT=${1:-$(date -d "yesterday" +%F)} #获取昨天的时间,格式化输出,执行命令并把结果拿出来
 HDFS_BASE=/oj/analysis_agg
 TMP_BASE=/tmp/oj_analysis_agg_${DT}
 MYSQL_HOST=${MYSQL_HOST:-"127.0.0.1"}
@@ -16,7 +16,9 @@ hive --hivevar dt=${DT} -f ./hive_agg_daily.sql
 
 mkdir -p "${TMP_BASE}"
 
-if hdfs dfs -test -e ${HDFS_BASE}/summary/dt=${DT}; then
+#getmerge：把指定 HDFS 目录下的所有小文件读出来，合并成一个大文件，然后下载到本地服务器
+
+if hdfs dfs -test -e ${HDFS_BASE}/summary/dt=${DT}; then #test测试 e参数表示exist
   hdfs dfs -getmerge ${HDFS_BASE}/summary/dt=${DT} ${TMP_BASE}/summary.csv
 else
   echo "HDFS path not found: ${HDFS_BASE}/summary/dt=${DT}"
@@ -34,11 +36,17 @@ else
   echo "HDFS path not found: ${HDFS_BASE}/user_daily/dt=${DT}"
 fi
 
+# --local-infile:允许 MySQL 从本地文件加载数据
+#<<SQL:作为输入流传给mysql执行
+#在插入今天新算出来的结果之前，先删掉 MySQL 表中同一个日期的旧数据
+
 mysql --local-infile=1 -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u ${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DB} <<SQL
 DELETE FROM analysis_summary_daily WHERE dt='${DT}';
 DELETE FROM analysis_problem_daily WHERE dt='${DT}';
 DELETE FROM analysis_user_daily WHERE dt='${DT}';
 SQL
+
+#load data local infile:从指定的文件中导入数据
 
 if [ -f "${TMP_BASE}/summary.csv" ]; then
   mysql --local-infile=1 -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u ${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DB} <<SQL

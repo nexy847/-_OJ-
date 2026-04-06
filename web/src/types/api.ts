@@ -126,7 +126,21 @@ export type UserLanguageStatResponse = {
   acRate: number
 }
 
+export type UserLanguageDailyResponse = {
+  date: string
+  language: string
+  total: number
+  accepted: number
+  acRate: number
+}
+
 export type UserVerdictStatResponse = {
+  verdict: string
+  total: number
+}
+
+export type UserVerdictDailyResponse = {
+  date: string
   verdict: string
   total: number
 }
@@ -178,7 +192,23 @@ export type AdminLanguageStatResponse = {
   acRate: number
 }
 
+export type AdminLanguageDailyResponse = {
+  date: string
+  language: string
+  total: number
+  accepted: number
+  acRate: number
+  avgTimeMs: number
+  avgMemoryKb: number
+}
+
 export type AdminVerdictStatResponse = {
+  verdict: string
+  total: number
+}
+
+export type AdminVerdictDailyResponse = {
+  date: string
   verdict: string
   total: number
 }
@@ -199,4 +229,54 @@ export type AdminUserStatResponse = {
   total: number
   accepted: number
   acRate: number
+}
+
+export type AdminHourlyActivityResponse = {
+  date: string
+  hourOfDay: number
+  total: number
+  accepted: number
+  acRate: number
+  activeUsers: number
+}
+
+export type AdminProblemVerdictResponse = {
+  date: string
+  problemId: number
+  verdict: string
+  total: number
+}
+
+export type AdminSubmissionForecastResponse = {
+  forecastDate: string
+  targetDate: string
+  predictedSubmissions: number
+  modelName: string
+}
+
+export type AdminProblemDifficultyResponse = {
+  date: string
+  problemId: number
+  problemTitle: string | null
+  totalSubmissions: number
+  acceptedSubmissions: number
+  acRate: number
+  avgTimeMs: number
+  avgMemoryKb: number
+  avgAttemptsPerUser: number
+  waRate: number
+  reRate: number
+  tleRate: number
+  difficultyScore: number
+  difficultyLabel: string
+  modelName: string
+}
+
+export type AdminProblemDifficultyHistoryResponse = {
+  date: string
+  difficultyScore: number
+  difficultyLabel: string
+  acRate: number
+  avgTimeMs: number
+  avgAttemptsPerUser: number
 }

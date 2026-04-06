@@ -17,10 +17,14 @@ import {
 } from 'antd'
 import {
   getAdminDaily,
+  getAdminHourly,
+  getAdminLanguageDaily,
   getAdminLanguage,
   getAdminOverview,
+  getAdminProblemVerdict,
   getAdminTopProblems,
   getAdminTopUsers,
+  getAdminVerdictDaily,
   getAdminVerdict,
 } from '../../api/analytics'
 import { AdminProblemStatResponse, AdminUserStatResponse } from '../../types/api'
@@ -44,9 +48,21 @@ export function AdminAnalyticsPage() {
     queryKey: ['analytics', 'admin', 'language', date],
     queryFn: () => getAdminLanguage(date),
   })
+  const languageDailyQuery = useQuery({
+    queryKey: ['analytics', 'admin', 'language-daily', days],
+    queryFn: () => getAdminLanguageDaily(days),
+  })
   const verdictQuery = useQuery({
     queryKey: ['analytics', 'admin', 'verdict', date],
     queryFn: () => getAdminVerdict(date),
+  })
+  const verdictDailyQuery = useQuery({
+    queryKey: ['analytics', 'admin', 'verdict-daily', days],
+    queryFn: () => getAdminVerdictDaily(days),
+  })
+  const hourlyQuery = useQuery({
+    queryKey: ['analytics', 'admin', 'hourly', date],
+    queryFn: () => getAdminHourly(date),
   })
   const topProblemQuery = useQuery({
     queryKey: ['analytics', 'admin', 'problems', date, 20],
@@ -60,9 +76,23 @@ export function AdminAnalyticsPage() {
   const overview = overviewQuery.data
   const daily = dailyQuery.data ?? []
   const language = languageQuery.data ?? []
+  const languageDaily = languageDailyQuery.data ?? []
   const verdict = verdictQuery.data ?? []
+  const verdictDaily = verdictDailyQuery.data ?? []
+  const hourly = hourlyQuery.data ?? []
   const topProblems = topProblemQuery.data ?? []
   const topUsers = topUserQuery.data ?? []
+  const problemVerdictQuery = useQuery({
+    queryKey: ['analytics', 'admin', 'problem-verdict', date, topProblems[0]?.problemId ?? 0],
+    queryFn: () => getAdminProblemVerdict(topProblems[0]!.problemId, date),
+    enabled: topProblems.length > 0,
+  })
+  const problemVerdict = problemVerdictQuery.data ?? []
+
+  const languageSeriesNames = Array.from(new Set(languageDaily.map((item) => item.language)))
+  const languageDates = Array.from(new Set(languageDaily.map((item) => item.date)))
+  const verdictSeriesNames = Array.from(new Set(verdictDaily.map((item) => item.verdict)))
+  const verdictDates = Array.from(new Set(verdictDaily.map((item) => item.date)))
 
   const problemColumns: TableProps<AdminProblemStatResponse>['columns'] = [
     { title: 'Problem ID', dataIndex: 'problemId' },
@@ -237,6 +267,121 @@ export function AdminAnalyticsPage() {
                       type: 'pie',
                       radius: ['35%', '65%'],
                       data: verdict.map((item) => ({
+                        name: item.verdict,
+                        value: item.total,
+                      })),
+                    },
+                  ],
+                }}
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} xl={12}>
+          <Card title={`${days}-Day Language Trend`} loading={languageDailyQuery.isLoading}>
+            {languageDaily.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No language trend data" />
+            ) : (
+              <ReactECharts
+                style={chartStyle}
+                option={{
+                  tooltip: { trigger: 'axis' },
+                  legend: { bottom: 0 },
+                  xAxis: { type: 'category', data: languageDates },
+                  yAxis: { type: 'value' },
+                  series: languageSeriesNames.map((languageName) => ({
+                    name: languageName,
+                    type: 'line',
+                    smooth: true,
+                    data: languageDates.map((trendDate) => {
+                      const row = languageDaily.find((item) => item.date === trendDate && item.language === languageName)
+                      return row?.total ?? 0
+                    }),
+                  })),
+                }}
+              />
+            )}
+          </Card>
+        </Col>
+        <Col xs={24} xl={12}>
+          <Card title={`${days}-Day Verdict Trend`} loading={verdictDailyQuery.isLoading}>
+            {verdictDaily.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No verdict trend data" />
+            ) : (
+              <ReactECharts
+                style={chartStyle}
+                option={{
+                  tooltip: { trigger: 'axis' },
+                  legend: { bottom: 0 },
+                  xAxis: { type: 'category', data: verdictDates },
+                  yAxis: { type: 'value' },
+                  series: verdictSeriesNames.map((verdictName) => ({
+                    name: verdictName,
+                    type: 'bar',
+                    stack: 'verdict',
+                    data: verdictDates.map((trendDate) => {
+                      const row = verdictDaily.find((item) => item.date === trendDate && item.verdict === verdictName)
+                      return row?.total ?? 0
+                    }),
+                  })),
+                }}
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} xl={12}>
+          <Card title={`Hourly Activity (${date})`} loading={hourlyQuery.isLoading}>
+            {hourly.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No hourly activity data" />
+            ) : (
+              <ReactECharts
+                style={chartStyle}
+                option={{
+                  tooltip: { trigger: 'axis' },
+                  legend: { data: ['Submissions', 'Accepted', 'Active Users'] },
+                  xAxis: { type: 'category', data: hourly.map((item) => `${String(item.hourOfDay).padStart(2, '0')}:00`) },
+                  yAxis: [
+                    { type: 'value', name: 'Submissions' },
+                    { type: 'value', name: 'Active Users' },
+                  ],
+                  series: [
+                    { name: 'Submissions', type: 'bar', data: hourly.map((item) => item.total) },
+                    { name: 'Accepted', type: 'line', smooth: true, data: hourly.map((item) => item.accepted) },
+                    { name: 'Active Users', type: 'line', smooth: true, yAxisIndex: 1, data: hourly.map((item) => item.activeUsers) },
+                  ],
+                }}
+              />
+            )}
+          </Card>
+        </Col>
+        <Col xs={24} xl={12}>
+          <Card
+            title={
+              topProblems.length > 0
+                ? `Problem Verdict Breakdown (#${topProblems[0].problemId})`
+                : 'Problem Verdict Breakdown'
+            }
+            loading={problemVerdictQuery.isLoading}
+          >
+            {problemVerdict.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No problem verdict data" />
+            ) : (
+              <ReactECharts
+                style={chartStyle}
+                option={{
+                  tooltip: { trigger: 'item' },
+                  legend: { bottom: 0 },
+                  series: [
+                    {
+                      type: 'pie',
+                      radius: ['35%', '65%'],
+                      data: problemVerdict.map((item) => ({
                         name: item.verdict,
                         value: item.total,
                       })),

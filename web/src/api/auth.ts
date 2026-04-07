@@ -1,5 +1,12 @@
 import { apiClient } from './client'
-import { CurrentUser, LoginResponse, RegisterPayload, UpdateCurrentUserPayload, UserResponse } from '../types/api'
+import {
+  AdminCreateUserPayload,
+  CurrentUser,
+  LoginResponse,
+  RegisterPayload,
+  UpdateCurrentUserPayload,
+  UserResponse,
+} from '../types/api'
 
 export async function login(username: string, password: string) {
   const response = await apiClient.post<LoginResponse>('/auth/login', { username, password })
@@ -8,6 +15,11 @@ export async function login(username: string, password: string) {
 
 export async function register(payload: RegisterPayload) {
   const response = await apiClient.post<UserResponse>('/users', payload)
+  return response.data
+}
+
+export async function createUserByAdmin(payload: AdminCreateUserPayload) {
+  const response = await apiClient.post<UserResponse>('/admin/users', payload)
   return response.data
 }
 

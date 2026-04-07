@@ -8,6 +8,8 @@ import { AdminProblemDifficultyPage } from '../pages/admin/AdminProblemDifficult
 import { AdminProblemCreatePage } from '../pages/admin/AdminProblemCreatePage'
 import { AdminProblemDetailPage } from '../pages/admin/AdminProblemDetailPage'
 import { AdminProblemListPage } from '../pages/admin/AdminProblemListPage'
+import { AdminSubmissionListPage } from '../pages/admin/AdminSubmissionListPage'
+import { AdminUserCreatePage } from '../pages/admin/AdminUserCreatePage'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ProblemDetailPage } from '../pages/ProblemDetailPage'
@@ -63,6 +65,22 @@ export function AppRouter() {
           element={
             <AdminRoute>
               <AdminProblemCreatePage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/users/create"
+          element={
+            <AdminRoute>
+              <AdminUserCreatePage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/submissions"
+          element={
+            <AdminRoute>
+              <AdminSubmissionListPage />
             </AdminRoute>
           }
         />

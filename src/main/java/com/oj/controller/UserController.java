@@ -35,6 +35,10 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse create(@Valid @RequestBody CreateUserRequest request) {
+        return createUserResponse(request);
+    }
+
+    private UserResponse createUserResponse(CreateUserRequest request) {
         userRepository.findByUsername(request.getUsername()).ifPresent(existing -> {
             throw new IllegalArgumentException("Username already exists");
         });

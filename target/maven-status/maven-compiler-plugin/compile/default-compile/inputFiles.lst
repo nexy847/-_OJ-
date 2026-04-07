@@ -2,6 +2,8 @@ D:\oj_system_with_codex\src\main\java\com\oj\config\ExecutorConfig.java
 D:\oj_system_with_codex\src\main\java\com\oj\config\OjProperties.java
 D:\oj_system_with_codex\src\main\java\com\oj\config\SecurityConfig.java
 D:\oj_system_with_codex\src\main\java\com\oj\controller\AdminController.java
+D:\oj_system_with_codex\src\main\java\com\oj\controller\AdminSubmissionController.java
+D:\oj_system_with_codex\src\main\java\com\oj\controller\AdminUserController.java
 D:\oj_system_with_codex\src\main\java\com\oj\controller\AnalyticsController.java
 D:\oj_system_with_codex\src\main\java\com\oj\controller\ApiExceptionHandler.java
 D:\oj_system_with_codex\src\main\java\com\oj\controller\AuthController.java
@@ -17,7 +19,9 @@ D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminProblemDifficultyHistoryRe
 D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminProblemDifficultyResponse.java
 D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminProblemStatResponse.java
 D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminProblemVerdictResponse.java
+D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminSubmissionDetailResponse.java
 D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminSubmissionForecastResponse.java
+D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminSubmissionListItemResponse.java
 D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminUserStatResponse.java
 D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminVerdictDailyResponse.java
 D:\oj_system_with_codex\src\main\java\com\oj\dto\AdminVerdictStatResponse.java
@@ -100,6 +104,7 @@ D:\oj_system_with_codex\src\main\java\com\oj\repository\UserRepository.java
 D:\oj_system_with_codex\src\main\java\com\oj\security\DatabaseUserDetailsService.java
 D:\oj_system_with_codex\src\main\java\com\oj\security\JwtAuthenticationFilter.java
 D:\oj_system_with_codex\src\main\java\com\oj\security\JwtTokenService.java
+D:\oj_system_with_codex\src\main\java\com\oj\service\AdminSubmissionService.java
 D:\oj_system_with_codex\src\main\java\com\oj\service\AnalysisEventService.java
 D:\oj_system_with_codex\src\main\java\com\oj\service\AnalysisExportService.java
 D:\oj_system_with_codex\src\main\java\com\oj\service\AnalyticsDashboardService.java

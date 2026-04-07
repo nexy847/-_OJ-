@@ -3,6 +3,8 @@ import {
   CloudUploadOutlined,
   FileAddOutlined,
   FileTextOutlined,
+  ProfileOutlined,
+  TeamOutlined,
   LineChartOutlined,
   LogoutOutlined,
   OrderedListOutlined,
@@ -29,6 +31,8 @@ export function AppLayout() {
       ? [
           { key: '/admin/problems', icon: <FileTextOutlined />, label: 'Problem Admin' },
           { key: '/admin/problems/create', icon: <FileAddOutlined />, label: 'Create Problem' },
+          { key: '/admin/users/create', icon: <TeamOutlined />, label: 'Create User' },
+          { key: '/admin/submissions', icon: <ProfileOutlined />, label: 'All Submissions' },
           { key: '/admin/problems/difficulty', icon: <RiseOutlined />, label: 'Problem Difficulty' },
           { key: '/admin/analytics', icon: <BarChartOutlined />, label: 'System Analytics' },
           { key: '/admin/perdict', icon: <RadarChartOutlined />, label: 'Perdict' },

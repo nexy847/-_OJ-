@@ -16,6 +16,38 @@ export type RegisterPayload = {
   password: string
 }
 
+export type AdminCreateUserPayload = {
+  username: string
+  password: string
+}
+
+export type AdminSubmissionListItemResponse = {
+  submissionId: number
+  username: string | null
+  problemTitle: string | null
+  verdict: string | null
+  createdAt: string
+}
+
+export type AdminSubmissionDetailResponse = {
+  submissionId: number
+  userId: number
+  username: string
+  problemId: number
+  problemTitle: string
+  language: string
+  status: string
+  verdict: string
+  createdAt: string
+  updatedAt: string
+  code: string
+  timeMs: number | null
+  memoryKb: number | null
+  compileError: string | null
+  runtimeError: string | null
+  message: string | null
+}
+
 export type UserResponse = {
   id: number
   username: string

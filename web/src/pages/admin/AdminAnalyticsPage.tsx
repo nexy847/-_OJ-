@@ -121,7 +121,7 @@ export function AdminAnalyticsPage() {
               System Analytics
             </Typography.Title>
             <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
-              Review platform trends, language mix, verdict distribution, top problems, and active users.
+              查看平台一些指标的趋势,语言使用情况,判题结果分布,热门问题和活跃用户.
             </Typography.Paragraph>
           </div>
           <Space wrap>

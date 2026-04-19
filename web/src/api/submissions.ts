@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { apiClient } from './client'
-import { CreateSubmissionPayload, JudgeResultResponse, SubmissionResponse } from '../types/api'
+import {
+  AdminSubmissionDetailResponse,
+  AdminSubmissionListItemResponse,
+  CreateSubmissionPayload,
+  JudgeResultResponse,
+  SubmissionResponse,
+} from '../types/api'
 
 export async function createSubmission(payload: CreateSubmissionPayload) {
   const response = await apiClient.post<SubmissionResponse>('/submissions', payload)
@@ -9,6 +15,16 @@ export async function createSubmission(payload: CreateSubmissionPayload) {
 
 export async function getSubmission(id: string | number) {
   const response = await apiClient.get<SubmissionResponse>(`/submissions/${id}`)
+  return response.data
+}
+
+export async function getMySubmissions() {
+  const response = await apiClient.get<AdminSubmissionListItemResponse[]>('/submissions/me')
+  return response.data
+}
+
+export async function getMySubmissionDetail(id: string | number) {
+  const response = await apiClient.get<AdminSubmissionDetailResponse>(`/submissions/me/${id}`)
   return response.data
 }
 

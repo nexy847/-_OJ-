@@ -1,12 +1,9 @@
 package com.oj.service;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 
 import com.oj.dto.AdminSubmissionDetailResponse;
 import com.oj.dto.AdminSubmissionListItemResponse;
@@ -18,50 +15,54 @@ import com.oj.repository.JudgeResultRepository;
 import com.oj.repository.ProblemRepository;
 import com.oj.repository.SubmissionRepository;
 import com.oj.repository.UserRepository;
+import com.oj.util.SecurityUtils;
 
 @Service
-public class AdminSubmissionService {
+public class UserSubmissionService {
     private final SubmissionRepository submissionRepository;
     private final JudgeResultRepository judgeResultRepository;
     private final UserRepository userRepository;
     private final ProblemRepository problemRepository;
 
-    public AdminSubmissionService(SubmissionRepository submissionRepository,
-                                  JudgeResultRepository judgeResultRepository,
-                                  UserRepository userRepository,
-                                  ProblemRepository problemRepository) {
+    public UserSubmissionService(SubmissionRepository submissionRepository,
+                                 JudgeResultRepository judgeResultRepository,
+                                 UserRepository userRepository,
+                                 ProblemRepository problemRepository) {
         this.submissionRepository = submissionRepository;
         this.judgeResultRepository = judgeResultRepository;
         this.userRepository = userRepository;
         this.problemRepository = problemRepository;
     }
 
-    public List<AdminSubmissionListItemResponse> listAll() {
-        List<Submission> submissions = submissionRepository.findAllByOrderByCreatedAtDesc();
-        Map<Long, String> usernames = loadUsers(submissions.stream().map(Submission::getUserId).toList());
-        Map<Long, String> problemTitles = loadProblems(submissions.stream().map(Submission::getProblemId).toList());
-        return submissions.stream()
-                .map(submission -> new AdminSubmissionListItemResponse(
-                        submission.getId(),
-                        usernames.get(submission.getUserId()),
-                        problemTitles.get(submission.getProblemId()),
-                        submission.getVerdict() == null ? null : submission.getVerdict().name(),
-                        submission.getCreatedAt()))
+    public List<AdminSubmissionListItemResponse> listCurrentUser() {
+        User currentUser = currentUserOrThrow();
+        return submissionRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId()).stream()
+                .map(submission -> {
+                    Problem problem = problemRepository.findById(submission.getProblemId()).orElse(null);
+                    return new AdminSubmissionListItemResponse(
+                            submission.getId(),
+                            currentUser.getUsername(),
+                            problem == null ? null : problem.getTitle(),
+                            submission.getVerdict() == null ? null : submission.getVerdict().name(),
+                            submission.getCreatedAt());
+                })
                 .toList();
     }
 
-    public AdminSubmissionDetailResponse getDetail(Long submissionId) {
+    public AdminSubmissionDetailResponse getCurrentUserDetail(Long submissionId) {
+        User currentUser = currentUserOrThrow();
         Submission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new IllegalArgumentException("Submission not found"));
-        User user = userRepository.findById(submission.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (!currentUser.getId().equals(submission.getUserId())) {
+            throw new AccessDeniedException("Forbidden");
+        }
         Problem problem = problemRepository.findById(submission.getProblemId())
                 .orElseThrow(() -> new IllegalArgumentException("Problem not found"));
         JudgeResult result = judgeResultRepository.findBySubmissionId(submissionId).orElse(null);
         return new AdminSubmissionDetailResponse(
                 submission.getId(),
-                submission.getUserId(),
-                user.getUsername(),
+                currentUser.getId(),
+                currentUser.getUsername(),
                 submission.getProblemId(),
                 problem.getTitle(),
                 submission.getLanguage() == null ? null : submission.getLanguage().name(),
@@ -77,13 +78,12 @@ public class AdminSubmissionService {
                 result == null ? null : result.getMessage());
     }
 
-    private Map<Long, String> loadUsers(Collection<Long> ids) {
-        return userRepository.findAllById(ids).stream()
-                .collect(Collectors.toMap(User::getId, User::getUsername, (a, b) -> a));
-    }
-
-    private Map<Long, String> loadProblems(Collection<Long> ids) {
-        return problemRepository.findAllById(ids).stream()
-                .collect(Collectors.toMap(Problem::getId, Problem::getTitle, (a, b) -> a));
+    private User currentUserOrThrow() {
+        String username = SecurityUtils.currentUsername();
+        if (username == null) {
+            throw new AccessDeniedException("Forbidden");
+        }
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AccessDeniedException("Forbidden"));
     }
 }

@@ -30,17 +30,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+            String token = header.substring(7);//拿到Bearer 后面的token
             try {
-                String username = tokenService.parseUsername(token);
-                UserDetails details = userDetailsService.loadUserByUsername(username);
+                String username = tokenService.parseUsername(token);//解析用户名
+                UserDetails details = userDetailsService.loadUserByUsername(username);//由username得出用户信息
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                        new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());//credentials通常存的是密码 此时token已过校验 无需密码 所以为null
+                SecurityContextHolder.getContext().setAuthentication(auth);//往上下文里加入认证信息(用户和身份)
             } catch (Exception ignored) {
-                SecurityContextHolder.clearContext();
+                SecurityContextHolder.clearContext();//token失效 清空上下文
             }
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);//放行
     }
 }

@@ -3,6 +3,7 @@ import {
   CreateProblemPayload,
   CreateTestcasePayload,
   ProblemResponse,
+  TestcaseContentResponse,
   TestcaseResponse,
   UpdateProblemPayload,
 } from '../types/api'
@@ -29,6 +30,13 @@ export async function updateProblem(id: string | number, payload: UpdateProblemP
 
 export async function listProblemTestcases(problemId: string | number) {
   const response = await apiClient.get<TestcaseResponse[]>(`/problems/${problemId}/testcases`)
+  return response.data
+}
+
+export async function getProblemTestcaseContent(problemId: string | number, testcaseId: string | number) {
+  const response = await apiClient.get<TestcaseContentResponse>(
+    `/problems/${problemId}/testcases/${testcaseId}/content`,
+  )
   return response.data
 }
 

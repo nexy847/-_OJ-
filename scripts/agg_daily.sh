@@ -16,7 +16,7 @@ hive --hivevar dt=${DT} -f ./hive_agg_daily.sql
 
 mkdir -p "${TMP_BASE}"
 
-#getmerge：把指定 HDFS 目录下的所有小文件读出来，合并成一个大文件，然后下载到本地服务器
+#getmerge：把指定 HDFS 目录下的所有小文件(当天每次提交都会有一个小文件)读出来，合并成一个大文件，然后下载到本地服务器
 
 if hdfs dfs -test -e ${HDFS_BASE}/summary/dt=${DT}; then #test测试 e参数表示exist
   hdfs dfs -getmerge ${HDFS_BASE}/summary/dt=${DT} ${TMP_BASE}/summary.csv

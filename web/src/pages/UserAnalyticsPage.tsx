@@ -96,7 +96,7 @@ export function UserAnalyticsPage() {
           My Analytics
         </Typography.Title>
         <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
-          This page shows your submission volume, acceptance rate, language usage, and recent submission history.
+          这一页展示了你的提交量,ac率,语言使用情况,和最近提交历史.
         </Typography.Paragraph>
       </Card>
 

@@ -67,6 +67,15 @@ export type TestcaseResponse = {
   weight: number
 }
 
+export type TestcaseContentResponse = {
+  id: number
+  inputPath: string
+  outputPath: string
+  weight: number
+  inputContent: string
+  outputContent: string
+}
+
 export type ProblemResponse = {
   id: number
   title: string
@@ -74,6 +83,7 @@ export type ProblemResponse = {
   timeLimitMs: number
   memoryLimitMb: number
   createdAt: string
+  difficultyLabel: string
   testcases: TestcaseResponse[]
 }
 

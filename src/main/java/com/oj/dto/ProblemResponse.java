@@ -10,15 +10,18 @@ public class ProblemResponse {
     private int timeLimitMs;
     private int memoryLimitMb;
     private Instant createdAt;
+    private String difficultyLabel;
     private List<TestcaseResponse> testcases;
 
-    public ProblemResponse(Long id, String title, String description, int timeLimitMs, int memoryLimitMb, Instant createdAt, List<TestcaseResponse> testcases) {
+    public ProblemResponse(Long id, String title, String description, int timeLimitMs, int memoryLimitMb,
+                           Instant createdAt, String difficultyLabel, List<TestcaseResponse> testcases) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.timeLimitMs = timeLimitMs;
         this.memoryLimitMb = memoryLimitMb;
         this.createdAt = createdAt;
+        this.difficultyLabel = difficultyLabel;
         this.testcases = testcases;
     }
 
@@ -44,6 +47,10 @@ public class ProblemResponse {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public String getDifficultyLabel() {
+        return difficultyLabel;
     }
 
     public List<TestcaseResponse> getTestcases() {

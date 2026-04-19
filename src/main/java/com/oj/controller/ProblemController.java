@@ -1,6 +1,8 @@
 package com.oj.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import com.oj.dto.CreateProblemRequest;
 import com.oj.dto.CreateTestcaseContentRequest;
 import com.oj.dto.ProblemResponse;
 import com.oj.dto.TestcaseResponse;
+import com.oj.dto.TestcaseContentResponse;
 import com.oj.dto.UpdateProblemRequest;
 import com.oj.entity.Problem;
 import com.oj.entity.Testcase;
@@ -38,13 +41,16 @@ public class ProblemController {
 
     @GetMapping
     public List<ProblemResponse> list() {
-        return problemService.findAll().stream()
-                .map(problem -> toResponse(problem, List.of()))
+        List<Problem> problems = problemService.findAll();
+        Set<Long> problemIds = problems.stream().map(Problem::getId).collect(Collectors.toSet());
+        Map<Long, String> difficultyLabels = problemService.findLatestDifficultyLabels(problemIds);
+        return problems.stream()
+                .map(problem -> toResponse(problem, List.of(), difficultyLabels.get(problem.getId())))
                 .collect(Collectors.toList());
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)//返回状态码
     @PreAuthorize("hasRole('ADMIN')")
     public ProblemResponse create(@Valid @RequestBody CreateProblemRequest request) {
         Problem problem = new Problem();
@@ -54,7 +60,8 @@ public class ProblemController {
         problem.setMemoryLimitMb(request.getMemoryLimitMb());
         Problem saved = problemService.createProblem(problem, request.getTestcases(), request.getTestcaseContents());
         List<Testcase> testcases = problemService.findTestcases(saved.getId());
-        return toResponse(saved, testcases);
+        String difficultyLabel = problemService.findLatestDifficultyLabels(Set.of(saved.getId())).get(saved.getId());
+        return toResponse(saved, testcases, difficultyLabel);
     }
 
     @GetMapping("/{id}")
@@ -64,7 +71,8 @@ public class ProblemController {
         List<Testcase> testcases = SecurityUtils.isAdmin()
                 ? problemService.findTestcases(id)
                 : List.of();
-        return toResponse(problem, testcases);
+        String difficultyLabel = problemService.findLatestDifficultyLabels(Set.of(id)).get(id);
+        return toResponse(problem, testcases, difficultyLabel);
     }
 
     @PutMapping("/{id}")
@@ -73,7 +81,8 @@ public class ProblemController {
         Problem updated = problemService.updateProblem(id, request.getTitle(), request.getDescription(),
                 request.getTimeLimitMs(), request.getMemoryLimitMb());
         List<Testcase> testcases = problemService.findTestcases(id);
-        return toResponse(updated, testcases);
+        String difficultyLabel = problemService.findLatestDifficultyLabels(Set.of(id)).get(id);
+        return toResponse(updated, testcases, difficultyLabel);
     }
 
     @PostMapping("/{id}/testcases")
@@ -95,6 +104,21 @@ public class ProblemController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/{problemId}/testcases/{testcaseId}/content")
+    @PreAuthorize("hasRole('ADMIN')")
+    public TestcaseContentResponse getTestcaseContent(@PathVariable("problemId") Long problemId,
+                                                      @PathVariable("testcaseId") Long testcaseId) {
+        ProblemService.TestcaseContent content = problemService.getTestcaseContent(problemId, testcaseId);
+        Testcase testcase = content.testcase();
+        return new TestcaseContentResponse(
+                testcase.getId(),
+                testcase.getInputPath(),
+                testcase.getOutputPath(),
+                testcase.getWeight(),
+                content.inputContent(),
+                content.outputContent());
+    }
+
     @PutMapping("/{problemId}/testcases/{testcaseId}")
     @PreAuthorize("hasRole('ADMIN')")
     public TestcaseResponse overwriteTestcase(@PathVariable("problemId") Long problemId,
@@ -113,11 +137,12 @@ public class ProblemController {
         problemService.deleteTestcase(problemId, testcaseId);
     }
 
-    private ProblemResponse toResponse(Problem problem, List<Testcase> testcases) {
+    private ProblemResponse toResponse(Problem problem, List<Testcase> testcases, String difficultyLabel) {
         List<TestcaseResponse> tcResponses = testcases.stream()
                 .map(tc -> new TestcaseResponse(tc.getId(), tc.getInputPath(), tc.getOutputPath(), tc.getWeight()))
                 .collect(Collectors.toList());
         return new ProblemResponse(problem.getId(), problem.getTitle(), problem.getDescription(),
-                problem.getTimeLimitMs(), problem.getMemoryLimitMb(), problem.getCreatedAt(), tcResponses);
+                problem.getTimeLimitMs(), problem.getMemoryLimitMb(), problem.getCreatedAt(),
+                difficultyLabel == null || difficultyLabel.isBlank() ? "暂无分类" : difficultyLabel, tcResponses);
     }
 }

@@ -11,6 +11,7 @@ import { AdminProblemListPage } from '../pages/admin/AdminProblemListPage'
 import { AdminSubmissionListPage } from '../pages/admin/AdminSubmissionListPage'
 import { AdminUserCreatePage } from '../pages/admin/AdminUserCreatePage'
 import { LoginPage } from '../pages/LoginPage'
+import { MySubmissionListPage } from '../pages/MySubmissionListPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ProblemDetailPage } from '../pages/ProblemDetailPage'
 import { ProblemListPage } from '../pages/ProblemListPage'
@@ -49,6 +50,7 @@ export function AppRouter() {
         <Route index element={<Navigate to="/problems" replace />} />
         <Route path="problems" element={<ProblemListPage />} />
         <Route path="problems/:id" element={<ProblemDetailPage />} />
+        <Route path="my-submissions" element={<MySubmissionListPage />} />
         <Route path="submissions/:id" element={<SubmissionDetailPage />} />
         <Route path="analytics/user" element={<UserAnalyticsPage />} />
         <Route path="profile" element={<ProfilePage />} />

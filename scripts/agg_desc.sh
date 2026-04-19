@@ -15,7 +15,7 @@ MYSQL_PASS=${MYSQL_PASS:-"12365478910vr"}
 hive --hivevar dt=${DT} -f ./hive_desc_analytics.sql
 
 mkdir -p "${TMP_BASE}"
-
+# 将目录下的所有小文件都合并在一起，合为一个大的local_file
 merge_if_exists() {
   local hdfs_path=$1
   local local_file=$2

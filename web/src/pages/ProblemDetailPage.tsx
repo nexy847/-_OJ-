@@ -218,8 +218,7 @@ export function ProblemDetailPage() {
             </Card>
             <Card title="Note">
               <Typography.Paragraph style={{ marginBottom: 0 }}>
-                Testcases are maintained in the admin management pages. This page only shows the statement and accepts
-                code submissions.
+                Testcases在管理员页面才有,此页仅用于提交题目和查看最近提交
               </Typography.Paragraph>
             </Card>
           </Space>

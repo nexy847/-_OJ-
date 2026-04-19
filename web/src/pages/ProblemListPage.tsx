@@ -7,6 +7,13 @@ import { useAuth } from '../app/useAuth'
 import { ProblemResponse } from '../types/api'
 import { formatDateTime } from '../utils/format'
 
+function difficultyColor(label: string) {
+  if (label === 'Easy') return 'green'
+  if (label === 'Medium') return 'orange'
+  if (label === 'Hard') return 'red'
+  return 'default'
+}
+
 export function ProblemListPage() {
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
@@ -20,10 +27,7 @@ export function ProblemListPage() {
       title: 'Problem',
       dataIndex: 'title',
       render: (_: unknown, record) => (
-        <Space direction="vertical" size={0}>
-          <Typography.Link onClick={() => navigate(`/problems/${record.id}`)}>{record.title}</Typography.Link>
-          <Typography.Text type="secondary">{record.description}</Typography.Text>
-        </Space>
+        <Typography.Link onClick={() => navigate(`/problems/${record.id}`)}>{record.title}</Typography.Link>
       ),
     },
     {
@@ -34,6 +38,11 @@ export function ProblemListPage() {
           <Tag color="purple">{record.memoryLimitMb} MB</Tag>
         </Space>
       ),
+    },
+    {
+      title: 'Difficulty',
+      dataIndex: 'difficultyLabel',
+      render: (value: string) => <Tag color={difficultyColor(value)}>{value}</Tag>,
     },
     {
       title: 'Created At',

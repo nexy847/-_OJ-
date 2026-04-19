@@ -42,7 +42,7 @@ public class DockerJudgeRunner {
 
         Path workDir;
         try {
-            workDir = prepareWorkDir(submission);
+            workDir = prepareWorkDir(submission);//解析为D://.../data/work/sub-{id}
         } catch (IOException e) {
             return new JudgeRunResult(Verdict.ERROR, 0, 0, null, null, "Failed to prepare workdir: " + e.getMessage());
         }
@@ -54,7 +54,7 @@ public class DockerJudgeRunner {
         }
 
         CompileAndRunSpec spec = CompileAndRunSpec.forLanguage(language);
-        try {//把用户提交的代码字符串存成磁盘上的 Main.cpp 或 Main.java
+        try {//把用户提交的代码字符串存成磁盘上的 Main.cpp 或 Main.java/main.py
             writeSource(workDir, spec.sourceFileName(), submission.getCode());
         } catch (IOException e) {
             return new JudgeRunResult(Verdict.ERROR, 0, 0, null, null, "Failed to write source: " + e.getMessage());
@@ -62,7 +62,7 @@ public class DockerJudgeRunner {
 
         if (spec.compileCommand() != null) {//在docker内编译
             ProcessRunner.CommandResult compileResult = runDockerCommand(image, spec.compileCommand(), workDir, null, Duration.ofSeconds(30), false);
-            //编译后 会在/work/sub-{id}里留存一个*.out二进制文件（运行周期结束时会被删掉）
+            //编译后 会在/work/sub-{id}里留存一个编译的结果---二进制文件（运行周期结束时会被删掉）（c/c++是*.out文件 java不是 py不用编译）
             if (!compileResult.isSuccess()) {
                 String error = compileResult.stderr().isBlank() ? compileResult.stdout() : compileResult.stderr();
                 return new JudgeRunResult(Verdict.CE, 0, 0, error, null, "Compilation failed");
@@ -139,9 +139,9 @@ public class DockerJudgeRunner {
     }
 
     private Path prepareWorkDir(Submission submission) throws IOException {
-        Path base = Path.of(properties.getJudge().getWorkDir()).toAbsolutePath();
-        Files.createDirectories(base);
-        Path workDir = base.resolve("sub-" + submission.getId());
+        Path base = Path.of(properties.getJudge().getWorkDir()).toAbsolutePath();//结果带有D盘盘符
+        Files.createDirectories(base);//也可以传入相对路径 不过这样保险些
+        Path workDir = base.resolve("sub-" + submission.getId());//resolve就是路径相加 结果依然是绝对路径
         Files.createDirectories(workDir);
         return workDir;
     }
@@ -179,12 +179,12 @@ public class DockerJudgeRunner {
             cmd.add(testcaseDir.toAbsolutePath().toString() + ":" + TESTCASES + ":ro");
         }
         cmd.add("-w");
-        cmd.add(WORKSPACE);//设置初始工作目录
+        cmd.add(WORKSPACE);//设置初始工作目录（指定的内部工作目录）
         cmd.add(image);//设置镜像名
         if (measure) {//时间性能测量
             cmd.add("/usr/bin/time");
             cmd.add("-f");
-            cmd.add("TIME:%e MEM:%M");//格式化输出
+            cmd.add("TIME:%e MEM:%M");//格式化输出(通常会被直接放在标准错误输出里面)
         }
         cmd.add("/bin/sh");
         cmd.add("-c");
@@ -233,7 +233,7 @@ public class DockerJudgeRunner {
         if (content.length() > 200) {
             return content.substring(0, 200) + "...";
         }
-        return content.replace("\n", "\\n");
+        return content.replace("\n", "\\n");//将所有换行符转为转义换行字符，方便把代码弄成一行
     }
 
     private static MetricResult parseMetrics(String stderr) {
@@ -259,9 +259,9 @@ public class DockerJudgeRunner {
     }
 
     private record MetricResult(long timeMs, long memoryKb) {}
-
+    //record关键字会定义一个纯数字类 自带全参构造 字段的getter方法
     private record CompileAndRunSpec(String sourceFileName, String compileCommand, String runCommand) {
-        static CompileAndRunSpec forLanguage(Language language) {
+        static CompileAndRunSpec forLanguage(Language language) {//静态工厂方法 可通过类名直接调用
             return switch (language) {
                 case C -> new CompileAndRunSpec("Main.c", "gcc /workspace/Main.c -O2 -o /workspace/a.out", "/workspace/a.out < {input} > {output}");
                 case CPP -> new CompileAndRunSpec("Main.cpp", "g++ /workspace/Main.cpp -O2 -std=c++17 -o /workspace/a.out", "/workspace/a.out < {input} > {output}");

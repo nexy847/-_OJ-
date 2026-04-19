@@ -45,11 +45,11 @@ public class AuthController {
         rateLimitService.checkLogin(httpRequest.getRemoteAddr());
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
-        boolean ok = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());//有的用户密码用的是bcrypt
+        boolean ok = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());//默认使用BCrypt 对不上就进入sha256判断
         if (!ok) {//有的用户密码加密用的是sha256
             String legacy = HashUtils.sha256(request.getPassword());
-            if (legacy.equalsIgnoreCase(user.getPasswordHash())) {
-                user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+            if (legacy.equalsIgnoreCase(user.getPasswordHash())) {//请求的密码和用户的密码对应
+                user.setPasswordHash(passwordEncoder.encode(request.getPassword()));//此加密默认使用BCrypt加盐
                 userRepository.save(user);
                 ok = true;
             }

@@ -41,7 +41,7 @@ export function AdminPerdictPage() {
               Perdict
             </Typography.Title>
             <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
-              Review future submission volume predicted by the Spark forecasting job.
+              查看Spark预测出的未来提交量.
             </Typography.Paragraph>
           </div>
           <DatePicker

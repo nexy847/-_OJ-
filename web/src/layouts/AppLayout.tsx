@@ -25,6 +25,7 @@ export function AppLayout() {
 
   const items = [
     ...(!isAdmin ? [{ key: '/problems', icon: <OrderedListOutlined />, label: 'Problems' }] : []),
+    ...(!isAdmin ? [{ key: '/my-submissions', icon: <ProfileOutlined />, label: 'My Submissions' }] : []),
     { key: '/analytics/user', icon: <LineChartOutlined />, label: 'My Analytics' },
     { key: '/profile', icon: <SettingOutlined />, label: 'Profile' },
     ...(isAdmin

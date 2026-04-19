@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Col,
+  Descriptions,
   Empty,
   Form,
   Input,
@@ -25,6 +26,7 @@ import {
   createProblemTestcase,
   deleteProblemTestcase,
   getProblem,
+  getProblemTestcaseContent,
   listProblemTestcases,
   updateProblem,
   updateProblemTestcase,
@@ -51,6 +53,7 @@ export function AdminProblemDetailPage() {
   const [createForm] = Form.useForm<TestcaseForm>()
   const [editForm] = Form.useForm<TestcaseForm>()
   const [editing, setEditing] = useState<TestcaseResponse | null>(null)
+  const [viewing, setViewing] = useState<TestcaseResponse | null>(null)
 
   const problemQuery = useQuery({
     queryKey: ['problem', id],
@@ -61,6 +64,11 @@ export function AdminProblemDetailPage() {
     queryKey: ['problem-testcases', id],
     queryFn: () => listProblemTestcases(id!),
     enabled: Boolean(id),
+  })
+  const testcaseContentQuery = useQuery({
+    queryKey: ['problem-testcase-content', id, viewing?.id],
+    queryFn: () => getProblemTestcaseContent(id!, viewing!.id),
+    enabled: Boolean(id && viewing),
   })
 
   const refresh = async () => {
@@ -141,6 +149,15 @@ export function AdminProblemDetailPage() {
     { title: 'Input Path', dataIndex: 'inputPath' },
     { title: 'Output Path', dataIndex: 'outputPath' },
     { title: 'Weight', dataIndex: 'weight', width: 100 },
+    {
+      title: 'Content',
+      key: 'content',
+      render: (_: unknown, record) => (
+        <Button type="link" onClick={() => setViewing(record)}>
+          View Content
+        </Button>
+      ),
+    },
     {
       title: 'Action',
       render: (_: unknown, record) => (
@@ -359,6 +376,45 @@ export function AdminProblemDetailPage() {
             <InputNumber min={1} max={1000} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        open={Boolean(viewing)}
+        title={viewing ? `Testcase #${viewing.id} Content` : 'Testcase Content'}
+        onCancel={() => setViewing(null)}
+        footer={null}
+        width={960}
+        destroyOnClose
+      >
+        {testcaseContentQuery.isLoading ? (
+          <Card loading />
+        ) : testcaseContentQuery.data ? (
+          <Space direction="vertical" size={16} style={{ display: 'flex' }}>
+            <Descriptions bordered column={1} size="small">
+              <Descriptions.Item label="Input Path">{testcaseContentQuery.data.inputPath}</Descriptions.Item>
+              <Descriptions.Item label="Output Path">{testcaseContentQuery.data.outputPath}</Descriptions.Item>
+              <Descriptions.Item label="Weight">{testcaseContentQuery.data.weight}</Descriptions.Item>
+            </Descriptions>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} xl={12}>
+                <Card type="inner" title="Input Content">
+                  <pre className="monospace-block" style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+                    {testcaseContentQuery.data.inputContent}
+                  </pre>
+                </Card>
+              </Col>
+              <Col xs={24} xl={12}>
+                <Card type="inner" title="Expected Output">
+                  <pre className="monospace-block" style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+                    {testcaseContentQuery.data.outputContent}
+                  </pre>
+                </Card>
+              </Col>
+            </Row>
+          </Space>
+        ) : (
+          <Empty description="Testcase content not found" />
+        )}
       </Modal>
     </Space>
   )

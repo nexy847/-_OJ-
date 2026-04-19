@@ -36,7 +36,7 @@ public class AnalysisExportService {
         this.properties = properties;
     }
 
-    @Scheduled(cron = "${oj.export.cron}")//判题好了的题目会被自动导出到hdfs
+    @Scheduled(cron = "${oj.export.cron}")//判题好了的题目会被自动导出到hdfs(每小时的第0分0秒执行一次)
     public void scheduledExport() {
         exportPendingToHdfs();
     }
@@ -44,7 +44,7 @@ public class AnalysisExportService {
     @Transactional
     public int exportPendingToHdfs() {
         int batchSize = properties.getExport().getBatchSize();
-        List<AnalysisEvent> events = analysisEventRepository.findPending(PageRequest.of(0, batchSize));
+        List<AnalysisEvent> events = analysisEventRepository.findPending(PageRequest.of(0, batchSize));//括号内的意思：只要第一页的数据，最多只要batchsize条
         if (events.isEmpty()) {
             return 0;
         }
@@ -60,7 +60,7 @@ public class AnalysisExportService {
         Configuration conf = buildConfiguration(hdfsUri);
 
         try (FileSystem fs = FileSystem.get(java.net.URI.create(hdfsUri), conf)) {
-            fs.mkdirs(targetDir);
+            fs.mkdirs(targetDir);//如果目录已经存在也不会被删掉
             try (FSDataOutputStream out = fs.create(targetFile, true);
                  BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
                 writer.write("submission_id,user_id,problem_id,language,verdict,time_ms,memory_kb,created_at");

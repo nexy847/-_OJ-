@@ -33,7 +33,7 @@ public class JudgeService {
         this.submissionService = submissionService;
     }
 
-    @Transactional
+    @Transactional//方法设计数据库的事务要么全部成功 要么全部失败后回滚
     public JudgeResult judge(Submission submission) {
         Problem problem = problemService.findById(submission.getProblemId())
                 .orElseThrow(() -> new IllegalStateException("Problem not found: " + submission.getProblemId()));

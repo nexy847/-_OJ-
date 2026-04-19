@@ -16,6 +16,8 @@ import com.oj.config.OjProperties;
 import com.oj.dto.CreateSubmissionRequest;
 import com.oj.dto.JudgeResultResponse;
 import com.oj.dto.SubmissionResponse;
+import com.oj.dto.AdminSubmissionDetailResponse;
+import com.oj.dto.AdminSubmissionListItemResponse;
 import com.oj.entity.JudgeResult;
 import com.oj.entity.Submission;
 import com.oj.entity.User;
@@ -23,6 +25,7 @@ import com.oj.repository.JudgeResultRepository;
 import com.oj.repository.UserRepository;
 import com.oj.service.RateLimitService;
 import com.oj.service.SubmissionService;
+import com.oj.service.UserSubmissionService;
 import com.oj.util.SecurityUtils;
 
 import jakarta.validation.Valid;
@@ -35,17 +38,20 @@ public class SubmissionController {
     private final UserRepository userRepository;
     private final RateLimitService rateLimitService;
     private final OjProperties properties;
+    private final UserSubmissionService userSubmissionService;
 
     public SubmissionController(SubmissionService submissionService,
                                 JudgeResultRepository judgeResultRepository,
                                 UserRepository userRepository,
                                 RateLimitService rateLimitService,
-                                OjProperties properties) {
+                                OjProperties properties,
+                                UserSubmissionService userSubmissionService) {
         this.submissionService = submissionService;
         this.judgeResultRepository = judgeResultRepository;
         this.userRepository = userRepository;
         this.rateLimitService = rateLimitService;
         this.properties = properties;
+        this.userSubmissionService = userSubmissionService;
     }
 
     @PostMapping
@@ -84,6 +90,16 @@ public class SubmissionController {
         assertCanAccess(submission);
         return new JudgeResultResponse(result.getSubmissionId(), result.getVerdict(), result.getTimeMs(),
                 result.getMemoryKb(), result.getCompileError(), result.getRuntimeError(), result.getMessage(), result.getCreatedAt());
+    }
+
+    @GetMapping("/me")
+    public java.util.List<AdminSubmissionListItemResponse> listMine() {
+        return userSubmissionService.listCurrentUser();
+    }
+
+    @GetMapping("/me/{id}")
+    public AdminSubmissionDetailResponse getMine(@PathVariable("id") Long id) {
+        return userSubmissionService.getCurrentUserDetail(id);
     }
 
     private SubmissionResponse toResponse(Submission submission) {

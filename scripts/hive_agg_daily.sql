@@ -18,7 +18,7 @@ STORED AS TEXTFILE
 LOCATION '/oj/analysis'
 TBLPROPERTIES ('skip.header.line.count'='1');
 
-MSCK REPAIR TABLE oj.analysis_events;
+MSCK REPAIR TABLE oj.analysis_events; 
 
 INSERT OVERWRITE DIRECTORY '/oj/analysis_agg/summary/dt=${hivevar:dt}'
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','

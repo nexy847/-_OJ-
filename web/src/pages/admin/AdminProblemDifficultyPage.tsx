@@ -64,7 +64,7 @@ export function AdminProblemDifficultyPage() {
               Problem Difficulty
             </Typography.Title>
             <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
-              Review rule-based difficulty scores generated from Spark over historical judge behavior.
+              查看Spark通过历史判题行为计算出来的难度分数
             </Typography.Paragraph>
           </div>
           <Space wrap>

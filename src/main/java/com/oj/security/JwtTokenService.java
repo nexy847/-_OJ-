@@ -19,9 +19,9 @@ public class JwtTokenService {
 
     public String generateToken(String username) {
         Instant now = Instant.now();
-        Instant expiry = now.plusSeconds(expirationMinutes * 60);
+        Instant expiry = now.plusSeconds(expirationMinutes * 60);//单位是秒 总数为分钟
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(username)//将用户名存入
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(expiry))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -32,7 +32,7 @@ public class JwtTokenService {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(token)//由这个方法对token作校验 完整性 时效性 签名合法性 返回一个Claims对象
                 .getBody()
                 .getSubject();
     }
